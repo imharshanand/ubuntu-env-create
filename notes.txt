@@ -1,0 +1,200 @@
+### Step-by-Step Guide to Setting Up TensorFlow with GPU on Ubuntu 20.04.1
+nvidia-smi [NVIDIA-SMI 535.171.04, Driver Version: 535.171.04, CUDA Version: 12.2]
+uname -a [Linux harsh 5.15.0-107-generic #117~20.04.1-Ubuntu SMP Tue Apr 30 10:35:57 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux]
+GPU - RTX 3060Ti
+
+#### 1. Verify NVIDIA Driver Installation
+Ensure that the NVIDIA drivers are correctly installed. Use the `nvidia-smi` command to check:
+
+```sh
+nvidia-smi
+```
+
+#### 2. Install CUDA Toolkit
+If `nvcc` is not found, install the CUDA toolkit:
+
+```sh
+sudo apt update
+sudo apt install nvidia-cuda-toolkit
+```
+
+Verify the installation:
+
+```sh
+nvcc --version
+```
+
+#### 3. Set Environment Variables
+Ensure the `LD_LIBRARY_PATH` includes the CUDA libraries:
+
+```sh
+export LD_LIBRARY_PATH=/usr/local/cuda-12.2/lib64:${LD_LIBRARY_PATH}
+```
+
+To make this change permanent, add it to your `.bashrc` or `.zshrc`:
+
+```sh
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda-12.2/lib64:${LD_LIBRARY_PATH}' >> ~/.bashrc
+source ~/.bashrc
+```
+
+#### 4. Install Anaconda (if not already installed)
+Download and install Anaconda from the official website:
+
+```sh
+wget https://repo.anaconda.com/archive/Anaconda3-2023.03-Linux-x86_64.sh
+bash Anaconda3-2023.03-Linux-x86_64.sh
+```
+
+Follow the prompts to complete the installation.
+
+#### 5. Create a New Conda Environment for TensorFlow
+Create and activate a new environment:
+
+```sh
+conda create -n tensorflow_env python=3.8
+conda activate tensorflow_env
+```
+
+#### 6. Install TensorFlow
+Install TensorFlow with GPU support:
+
+```sh
+pip install tensorflow==2.11
+```
+
+#### 7. Verify GPU Availability
+Create and run a Python script to verify GPU availability:
+
+```python
+import tensorflow as tf
+
+# Check if GPU is available
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    print("GPUs available:")
+    for gpu in gpus:
+        print(f"  - {gpu}")
+else:
+    print("No GPUs available")
+```
+
+Run this script to ensure TensorFlow can see the GPU.
+
+#### 8. Perform a TensorFlow Operation on the GPU
+Create and run a Python script to perform a simple operation on the GPU:
+
+```python
+import tensorflow as tf
+
+# Perform a simple TensorFlow operation to verify GPU utilization
+with tf.device('/GPU:0'):
+    a = tf.constant([[1.0, 2.0], [3.0, 4.0]])
+    b = tf.constant([[1.0, 1.0], [1.0, 1.0]])
+    c = tf.matmul(a, b)
+    print("Result of matrix multiplication on GPU:")
+    print(c)
+```
+
+#### 9. Monitor GPU Usage with `nvidia-smi`
+While running TensorFlow operations, monitor GPU usage in a separate terminal:
+
+```sh
+watch -n 1 nvidia-smi
+```
+
+#### 10. Verify CUDA and cuDNN Versions
+Use the following script to check the detailed information about the GPU devices and verify CUDA and cuDNN versions:
+
+```python
+import tensorflow as tf
+
+# Get the list of physical devices
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    print("GPUs available:")
+    for gpu in gpus:
+        print(f"  - {gpu}")
+        details = tf.config.experimental.get_device_details(gpu)
+        print(f"  - Details: {details}")
+else:
+    print("No GPUs available")
+
+# Check TensorFlow build information
+print("TensorFlow version:", tf.__version__)
+```
+
+### Summary of Commands and Scripts
+
+- **Install NVIDIA CUDA Toolkit**:
+  ```sh
+  sudo apt update
+  sudo apt install nvidia-cuda-toolkit
+  ```
+
+- **Set `LD_LIBRARY_PATH`**:
+  ```sh
+  export LD_LIBRARY_PATH=/usr/local/cuda-12.2/lib64:${LD_LIBRARY_PATH}
+  echo 'export LD_LIBRARY_PATH=/usr/local/cuda-12.2/lib64:${LD_LIBRARY_PATH}' >> ~/.bashrc
+  source ~/.bashrc
+  ```
+
+- **Create Conda Environment and Install TensorFlow**:
+  ```sh
+  conda create -n tensorflow_env python=3.8
+  conda activate tensorflow_env
+  pip install tensorflow==2.11
+  ```
+
+- **Check GPU Availability**:
+  ```python
+  import tensorflow as tf
+
+  # Check if GPU is available
+  gpus = tf.config.list_physical_devices('GPU')
+  if gpus:
+      print("GPUs available:")
+      for gpu in gpus:
+          print(f"  - {gpu}")
+  else:
+      print("No GPUs available")
+  ```
+
+- **Perform TensorFlow Operation on GPU**:
+  ```python
+  import tensorflow as tf
+
+  # Perform a simple TensorFlow operation to verify GPU utilization
+  with tf.device('/GPU:0'):
+      a = tf.constant([[1.0, 2.0], [3.0, 4.0]])
+      b = tf.constant([[1.0, 1.0], [1.0, 1.0]])
+      c = tf.matmul(a, b)
+      print("Result of matrix multiplication on GPU:")
+      print(c)
+  ```
+
+- **Monitor GPU Usage**:
+  ```sh
+  watch -n 1 nvidia-smi
+  ```
+
+- **Verify CUDA and cuDNN Versions**:
+  ```python
+  import tensorflow as tf
+
+  # Get the list of physical devices
+  gpus = tf.config.list_physical_devices('GPU')
+  if gpus:
+      print("GPUs available:")
+      for gpu in gpus:
+          print(f"  - {gpu}")
+          details = tf.config.experimental.get_device_details(gpu)
+          print(f"  - Details: {details}")
+  else:
+      print("No GPUs available")
+
+  # Check TensorFlow build information
+  print("TensorFlow version:", tf.__version__)
+  ```
+
+By following these steps, you can successfully set up TensorFlow with GPU support on Ubuntu 20.04.1, ensuring that it utilizes the GPU for computations.
