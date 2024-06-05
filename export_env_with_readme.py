@@ -63,7 +63,7 @@ def create_readme(folder_name, env_name):
         file.write(f"   pip install -r {env_name}_requirements.txt\n")
 
 def main():
-    env_name = 'tensorflow_env'
+    env_name = input("Enter the name of the environment: ")
     folder_name = f"{env_name}_HowToCreate"
 
     print("Collecting Conda Environment Packages...")
